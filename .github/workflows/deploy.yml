@@ -1,0 +1,77 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: ["**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./mars-prj
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Get Base Path
+        id: meta
+        run: |
+          if [ "${GITHUB_REF_NAME}" = "master" ]; then
+            echo "base_path=/unisinos-projeto-integrador/" >> $GITHUB_OUTPUT
+            echo "is_master=true" >> $GITHUB_OUTPUT
+          else
+            echo "base_path=/unisinos-projeto-integrador/preview/${GITHUB_REF_NAME}/" >> $GITHUB_OUTPUT
+            echo "is_master=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build
+        run: bun run build --base=${{ steps.meta.outputs.base_path }}
+
+      - name: Prepare Artifact
+        run: |
+          mkdir -p ../dist-upload
+          if [ "${{ steps.meta.outputs.is_master }}" = "false" ]; then
+            # Se for branch, coloca o conteúdo em uma subpasta 'preview/nome-da-branch'
+            mkdir -p ../dist-upload/preview/${GITHUB_REF_NAME}
+            cp -r dist/* ../dist-upload/preview/${GITHUB_REF_NAME}/
+            # Adiciona um index simples na raiz para não dar 404 se alguém acessar o domínio puro
+            echo "<html><body><h1>Preview Mode</h1><p>Branch: ${GITHUB_REF_NAME}</p></body></html>" > ../dist-upload/index.html
+          else
+            # Se for master, coloca tudo na raiz do artefato
+            cp -r dist/* ../dist-upload/
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist-upload
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}${{ github.ref_name != 'master' && format('preview/{0}/', github.ref_name) || '' }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
