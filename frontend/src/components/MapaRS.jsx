@@ -18,8 +18,8 @@ function MapController() {
     const loadGeoData = async () => {
       try {
         const [resMunicipios, resEstado] = await Promise.all([
-          fetch("/geojson-municipios-rs.json"),
-          fetch("/geojson-estado-rs.json"),
+          fetch("./geojson-municipios-rs.json"),
+          fetch("./geojson-estado-rs.json"),
         ]);
 
         const municipiosData = await resMunicipios.json();
