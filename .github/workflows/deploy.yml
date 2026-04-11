@@ -53,7 +53,7 @@ jobs:
       - name: Deploy to GitHub Pages Branch
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: mars-prj/dist
+          folder: frontend/dist
           target-folder: ${{ steps.meta.outputs.target_folder }}
           branch: gh-pages
           clean: ${{ steps.meta.outputs.clean_mode }}
