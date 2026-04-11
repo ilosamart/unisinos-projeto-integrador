@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./mars-prj
+        working-directory: ./frontend
     steps:
       - name: Checkout
         uses: actions/checkout@v4

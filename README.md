@@ -13,3 +13,14 @@ Alinhado à promoção da educação de qualidade, de acordo com o [Objetivo de 
 ## Unisinos
 
 Projeto desenvolvido para a disciplina de `Projeto Integrador - Portal Web (061318_20261_01)` do curso de Sistemas para Internet da Unisinos, ministrada pelo professor Msc. Diogines D'Ávila Goldoni.
+
+
+## Tecnologias
+
+- Frontent
+   - Bun
+   - JavaScript
+   - React 19
+   - Leaflet   
+- Backend
+   - Python 3.13
